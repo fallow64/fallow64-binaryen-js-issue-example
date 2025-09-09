@@ -4,9 +4,19 @@ import { readFileSync, writeFileSync } from "fs";
 function main() {
     let wasmBuffer: Buffer;
     if (process.argv.length > 2) {
-        wasmBuffer = readFileSync(process.argv[2]!);
+        const path = process.argv[2]!;
+
+        if (path.endsWith(".wat")) {
+            const wat = readFileSync(path, "utf8");
+            wasmBuffer = Buffer.from(binaryen.parseText(wat).emitBinary());
+        } else if (path.endsWith(".wasm")) {
+            wasmBuffer = readFileSync(process.argv[2]!);
+        } else {
+            console.error("Input file must be .wat or .wasm");
+            process.exit(1);
+        }
     } else {
-        console.error("Usage: dfwasm2.ts <input.wasm>");
+        console.error("Usage: main.ts <input.wasm>");
         process.exit(1);
     }
 
